@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Installs Nginx with a 301 redirect and a custom 404 page
+apt-get update -y
+apt-get install -y nginx
+echo "Holberton School for the win!" > /var/www/html/index.html
+echo "Ceci n'est pas une page" > /var/www/html/404.html
+CONF="/etc/nginx/sites-available/default"
+grep -q "redirect_me" "$CONF" || sed -i 's/server_name _;/server_name _;\n\n\tlocation \/redirect_me {\n\t\treturn 301 https:\/\/www.youtube.com\/watch?v=QH2-TGUlwu4;\n\t}/' "$CONF"
+grep -q "error_page 404" "$CONF" || sed -i 's/server_name _;/server_name _;\n\n\terror_page 404 \/404.html;/' "$CONF"
+service nginx restart
