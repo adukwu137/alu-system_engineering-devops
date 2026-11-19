@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Configures and runs Nginx as the nginx user listening on port 8080
+# Configures Nginx to run as the nginx user and listen on port 8080
+id -u nginx >/dev/null 2>&1 || useradd --system --no-create-home --shell /usr/sbin/nologin nginx
+mkdir -p /var/log/nginx /var/lib/nginx /run
 chown -R nginx:nginx /var/log/nginx /var/lib/nginx /etc/nginx
-touch /run/nginx.pid
-chown nginx:nginx /run/nginx.pid
-sed -i 's/user www-data;/user nginx;/g' /etc/nginx/nginx.conf
-sed -i 's/listen 80 default_server;/listen 8080 default_server;/g' /etc/nginx/sites-available/default
-sed -i 's/listen \[::\]:80 default_server;/listen [::]:8080 default_server;/g' /etc/nginx/sites-available/default
+touch /run/nginx.pid && chown nginx:nginx /run/nginx.pid
+sed -i 's/user www-data;/user nginx;/g; s/user root;/user nginx;/g' /etc/nginx/nginx.conf
+grep -rnE 'listen\s+80\b' /etc/nginx/sites-available/ /etc/nginx/sites-enabled/ /etc/nginx/conf.d/ 2>/dev/null | cut -d: -f1 | sort -u | xargs -r sed -i 's/\blisten\s\+\(\[::\]:\)\?80\b/listen \18080/g'
 pkill -f nginx || true
-sudo -u nginx /usr/sbin/nginx
+nginx -t && sudo -u nginx /usr/sbin/nginx
