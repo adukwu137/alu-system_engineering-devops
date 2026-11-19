@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
-# Starts Apache inside the container so port 80 serves the Hello Holberton page
+# Starts Apache web server inside the container
 service apache2 start
