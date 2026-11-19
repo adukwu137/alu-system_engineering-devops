@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Configures Nginx to run as the nginx user and listen on port 8080
+# Stops Apache and runs Nginx master and worker processes as the nginx user on port 8080
 id -u nginx >/dev/null 2>&1 || useradd -r -s /usr/sbin/nologin nginx
-sed -i 's/user www-data;/user nginx;/g; s/user root;/user nginx;/g' /etc/nginx/nginx.conf
-for f in /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default /etc/nginx/conf.d/*.conf; do
-  [ -f "$f" ] && sed -i 's/listen 80;/listen 8080;/g; s/listen 80 /listen 8080 /g; s/\[::\]:80;/[::]:8080;/g; s/\[::\]:80 /[::]:8080 /g' "$f"
-done
-service nginx stop >/dev/null 2>&1 || true
-pkill nginx >/dev/null 2>&1 || true
-service nginx start
+kill -9 $(pgrep apache2) >/dev/null 2>&1 || true
+kill -9 $(pgrep nginx) >/dev/null 2>&1 || true
+mkdir -p /var/log/nginx /var/lib/nginx /var/cache/nginx
+chown -R nginx:nginx /var/log/nginx /var/lib/nginx /var/cache/nginx
+chmod -R a+rX /etc/nginx
+sed -i 's/^#*user .*/user nginx;/g' /etc/nginx/nginx.conf
+sed -i 's|pid /run/nginx.pid;|pid /tmp/nginx.pid;|g' /etc/nginx/nginx.conf
+sed -i 's/listen 80 /listen 8080 /g; s/\[::\]:80 /[::]:8080 /g' /etc/nginx/sites-available/default
+su -s /bin/bash nginx -c "/usr/sbin/nginx"
