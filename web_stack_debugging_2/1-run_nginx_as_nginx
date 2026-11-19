@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Stops Apache and runs Nginx master and worker processes as the nginx user on port 8080
 id -u nginx >/dev/null 2>&1 || useradd -r -s /usr/sbin/nologin nginx
-kill -9 $(pgrep apache2) >/dev/null 2>&1 || true
-kill -9 $(pgrep nginx) >/dev/null 2>&1 || true
+pkill -9 -x apache2 >/dev/null 2>&1 || true
+pkill -9 -x nginx >/dev/null 2>&1 || true
 mkdir -p /var/log/nginx /var/lib/nginx /var/cache/nginx
 chown -R nginx:nginx /var/log/nginx /var/lib/nginx /var/cache/nginx
 chmod -R a+rX /etc/nginx
